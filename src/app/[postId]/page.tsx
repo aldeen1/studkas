@@ -1,22 +1,33 @@
-import { getOnePost } from '@/lib/api'
+// app/posts/[postId]/page.tsx
+import { getAllPost, getOnePost } from '@/lib/api'
 import { Post } from '@/types/post'
 
-type PostPageProps = {
-  params: {
-    postId: string
-  }
+type PageProps = {
+  params: { postId: string }
 }
 
-const PostPage = async ({ params }: PostPageProps) => {
-  const { postId } = params
-  const post: Post = await getOnePost(Number(postId))
-
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-      <p className="text-lg">{post.body}</p>
-    </div>
-  )
+export async function generateStaticParams() {
+  const all = await getAllPost()
+  return all.posts.slice(0, 5).map(post => ({
+    postId: post.id.toString(),
+  }))
 }
 
-export default PostPage
+export const revalidate = 60
+
+export default async function PostPage({ params }: PageProps) {
+    const { postId } = params
+
+    const post: Post = await getOnePost(Number(postId))
+
+    if (!post) {
+        <div>Post not found</div>
+    }
+
+    return (
+        <div className="p-6">
+        <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+        <p className="text-lg">{post.body}</p>
+        </div>
+    )
+}
