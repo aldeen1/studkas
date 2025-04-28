@@ -16,7 +16,7 @@ export async function generateStaticParams() {
 export const revalidate = 60
 
 export default async function PostPage({ params }: PageProps) {
-    const { postId } = params
+    const { postId } = await params
 
     const post: Post = await getOnePost(Number(postId))
 
